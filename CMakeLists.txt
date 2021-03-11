@@ -17,6 +17,8 @@ set(BUILD_SHARED_LIBS ON)
 #   CMAKE_PREFIX_PATH=/path/to/sdk_build
 find_package(AWSSDK REQUIRED COMPONENTS s3)
 
+# Make binary globally available
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /usr/local/bin)
 
 # Link to the AWS SDK for C++ shared libraries.
 add_definitions(-DUSE_IMPORT_EXPORT)

@@ -55,7 +55,5 @@ ARG APP_BUILD_TYPE
 ENV APP_BUILD_TYPE="${APP_BUILD_TYPE}"
 RUN rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE="${APP_BUILD_TYPE}"
 WORKDIR /code/build/
-RUN \
-    make && \
-    cp s3-demo /usr/local/bin/
+RUN make
 # Default region N.Virginia
