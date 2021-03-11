@@ -49,7 +49,6 @@ $ cd docker-aws-sdk-cpp
 export APP_BUILD_TYPE="Debug" # or Release
 
 $ docker build -t unfor19/aws-sdk-cpp --build-arg APP_BUILD_TYPE="$APP_BUILD_TYPE" .
-# TODO: add Debug target
 ```
 
 ### Run
@@ -74,3 +73,22 @@ root@852c75b69bd4:/code/build# make
 root@852c75b69bd4:/code/build# s3-demo eu-west-1
 # Output: List of buckets ...
 ```
+
+### Build Only aws-sdk-cpp
+
+```bash
+docker build --target build-aws-sdk-cpp -t unfor19/aws-sdk-cpp:src .
+```
+
+## TODO
+
+- Dockerfile - Add `app` stage for a slim final artifact
+- Add Debug target
+
+## Authors
+
+Created and maintained by [Meir Gabay](https://github.com/unfor19)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/unfor19/docker-aws-sdk-cpp/blob/master/LICENSE) file for details
