@@ -57,6 +57,5 @@ RUN rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE="${APP_BUILD_TYPE}"
 WORKDIR /code/build/
 RUN \
     make && \
-    chmod +x s3-demo && \
     cp s3-demo /usr/local/bin/
 # Default region N.Virginia
