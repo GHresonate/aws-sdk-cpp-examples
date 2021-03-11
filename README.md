@@ -25,10 +25,16 @@ The executeable `s3-demo` is copied `/usr/local/bin` during the build time. The 
 
 ```bash
 # Using environment variables
-$ docker run --rm -it -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:latest s3-demo eu-west-1
+$ docker run --rm -it \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:latest s3-demo eu-west-1
+# Output: List of buckets ...
+
 
 # Using configuration file in readonly mode (haven't tested it)
 $ docker run --rm -it -v $HOME/.aws/:/root/.aws/:ro unfor19/aws-sdk-cpp:latest s3-demo eu-west-1
+# Output: List of buckets ...
 ```
 
 ## Development
@@ -54,9 +60,14 @@ Mount this project to the container and then build the application.
 # Change something in src/s3-demo.cpp with local IDE and build the application while in the container
 
 # Using environment variables
-$ docker run --rm -it -v "$PWD"/:/app/ -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:latest bash
+$ docker run --rm -it -v "$PWD"/:/app/ \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:latest bash
+
 root@852c75b69bd4:/code/build# s3-demo eu-west-1
 # Output: List of buckets ...
+
 
 # Change something in src/s3-demo.cpp with local IDE and build the application while in the container
 root@852c75b69bd4:/code/build# make
