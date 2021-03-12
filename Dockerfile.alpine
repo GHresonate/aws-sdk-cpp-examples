@@ -20,13 +20,9 @@ ARG APP_GROUP_ID="1001"
 ### --------------------------------------------------------------------
 FROM alpine:3.12 as base
 
-# # Fix tzdata hang
-# ENV TZ=Etc/UTC
-# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
 RUN \
     apk add --no-cache \
-    curl wget git zip unzip \
+    bash curl wget git zip unzip \
     cmake g++ musl-dev \
     curl-dev libressl openssl-dev pulseaudio-dev \
     zlib-dev

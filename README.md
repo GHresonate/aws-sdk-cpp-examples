@@ -93,11 +93,13 @@ root@852c75b69bd4:/code/build# s3-demo eu-west-1
 ### Build Only aws-sdk-cpp
 
 ```bash
-DOCKER_IMAGE="unfor19/aws-sdk-cpp:src-latest" # ubuntu
+$ DOCKER_IMAGE="unfor19/aws-sdk-cpp:src-latest" # ubuntu
 # For Alpine:
 # DOCKER_IMAGE="unfor19/aws-sdk-cpp:src-latest-alpine"
 
-docker build --target build-aws-sdk-cpp -t "$DOCKER_IMAGE" .
+$ docker build --target build-aws-sdk-cpp -t "$DOCKER_IMAGE" .
+# For Alpine: 
+# docker build -t "$DOCKER_IMAGE" --target build-aws-sdk-cpp . -f Dockerfile.alpine
 ```
 
 ## Authors
