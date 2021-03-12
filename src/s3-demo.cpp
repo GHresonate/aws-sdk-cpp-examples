@@ -46,12 +46,6 @@ int main(int argc, char *argv[])
 
         Aws::Client::ClientConfiguration config;
 
-        // default region is N.Virginia
-        if (region == "")
-        {
-            region = "us-east-1";
-        }
-
         config.region = region;
 
         Aws::S3::S3Client s3_client(config);
