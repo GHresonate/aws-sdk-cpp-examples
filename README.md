@@ -28,11 +28,11 @@ $ docker build -t "$DOCKER_IMAGE" .
 The executeable `s3-demo` is copied `/usr/local/bin` during the build time. The demo application consumes only one argument - `region`
 
 ```bash
-# Using environment variables
 $ DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest" # ubuntu
 # For Alpine:
 # DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest-alpine"
 
+# Using environment variables
 $ docker run --rm -it \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
