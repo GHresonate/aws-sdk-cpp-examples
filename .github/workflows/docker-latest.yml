@@ -58,6 +58,7 @@ jobs:
         run: docker push "$DOCKER_TAG" || true
 
   dockerhub-latest:
+    needs: docker_build
     name: push latest ubuntu
     runs-on: ubuntu-latest
     env:
@@ -86,6 +87,7 @@ jobs:
           docker push "${DOCKER_TAG}" && echo "Pushed $DOCKER_TAG"
 
   dockerhub-latest-alpine:
+    needs: docker_build
     name: push latest alpine
     runs-on: ubuntu-latest
     env:
