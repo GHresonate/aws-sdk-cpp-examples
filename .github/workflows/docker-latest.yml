@@ -64,9 +64,22 @@ jobs:
       DOCKER_TAG: unfor19/aws-sdk-cpp:latest
     steps:
       - uses: actions/checkout@v2
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
+        run: |
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}:test >> $GITHUB_ENV
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG"
       - name: Build Docker Image
         run: |
-          docker build . --file Dockerfile --tag "${DOCKER_TAG}"
+          docker build . --tag "${DOCKER_TAG}" -f Dockerfile --target app
       - name: Push to DockerHub
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
@@ -79,9 +92,22 @@ jobs:
       DOCKER_TAG: unfor19/aws-sdk-cpp:latest-alpine
     steps:
       - uses: actions/checkout@v2
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Set env vars
+        run: |
+          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
+          [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}:test >> $GITHUB_ENV
+      - name: docker login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+      - name: docker pull
+        run: |
+          docker pull "$DOCKER_TAG"
       - name: Build Docker Image
         run: |
-          docker build . --file Dockerfile.alpine --tag "${DOCKER_TAG}"
+          docker build . --tag "${DOCKER_TAG}" -f Dockerfile.alpine --target app
       - name: Push to DockerHub
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
