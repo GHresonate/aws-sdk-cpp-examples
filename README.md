@@ -82,7 +82,7 @@ docker build --target build-aws-sdk-cpp -t unfor19/aws-sdk-cpp:src .
 
 ## TODO
 
-- Dockerfile - Add `app` stage for a slim final artifact
+- Dockerfile - Change final image from `ubuntu` to `alpine`
 - Add Debug target
 
 ## Authors
