@@ -11,8 +11,6 @@ An example of how to a build C++ application that uses AWS's SDK.
 
 ### Build
 
-**Important**- I haven't used the [USER](https://docs.docker.com/engine/reference/builder/#user) command in the final image, so we're running everything as root. Make sure you change the user in your final Docker image.
-
 ```bash
 $ git clone https://github.com/unfor19/docker-aws-sdk-cpp.git
 $ cd docker-aws-sdk-cpp
@@ -48,7 +46,7 @@ $ cd docker-aws-sdk-cpp
 # (Optoinal) Build the application in Debug mode
 export APP_BUILD_TYPE="Debug" # or Release
 
-$ docker build -t unfor19/aws-sdk-cpp --build-arg APP_BUILD_TYPE="$APP_BUILD_TYPE" .
+$ docker build -t unfor19/aws-sdk-cpp --target build-app --build-arg APP_BUILD_TYPE="$APP_BUILD_TYPE" .
 ```
 
 ### Run
@@ -59,10 +57,10 @@ Mount this project to the container and then build the application.
 # Change something in src/s3-demo.cpp with local IDE and build the application while in the container
 
 # Using environment variables
-$ docker run --rm -it -v "$PWD"/:/app/ \
+$ docker run --rm -it -v "$PWD"/:/code/ \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
-    -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:latest bash
+    -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:src bash
 
 root@852c75b69bd4:/code/build# s3-demo eu-west-1
 # Output: List of buckets ...

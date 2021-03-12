@@ -8,6 +8,10 @@ ARG GITHUB_REPOSITORY="aws-sdk-cpp"
 ARG AWS_SDK_BUILD_ONLY="s3"
 ARG AWS_SDK_CPP_BUILD_TYPE="Release"
 ARG APP_BUILD_TYPE="Release"
+ARG APP_USER_NAME="appuser"
+ARG APP_USER_ID="1001"
+ARG APP_GROUP_NAME="appgroup"
+ARG APP_GROUP_ID="1001"
 ### --------------------------------------------------------------------
 
 
@@ -52,8 +56,8 @@ ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 RUN ln -sf /bin/bash /bin/sh
 WORKDIR /sdk_build/
 ENV GITHUB_URL="https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip"
-RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL"
-RUN unzip -qq "$ZIP_FILEPATH"
+RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" 
+RUN unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH"
 RUN cmake "aws-sdk-cpp-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}"
 RUN make
 RUN make install
@@ -78,6 +82,15 @@ RUN make && rm -rf /code/
 FROM ubuntu:20.04 as app
 RUN apt-get update && \
     apt-get install -y libcurl4
+
+ARG APP_USER_NAME
+ARG APP_USER_ID
+ARG APP_GROUP_ID
+ARG APP_GROUP_NAME
+
+RUN groupadd --gid "$APP_GROUP_ID" "$APP_GROUP_NAME" \
+    && useradd --uid "$APP_USER_ID" --gid "${APP_GROUP_ID}" --shell /bin/bash "$APP_USER_NAME"
+USER "$APP_USER_NAME"
 COPY --from=build-app /usr/local/lib/*.so* /usr/local/lib/
 COPY --from=build-app /usr/local/bin/. /usr/local/bin/
-# ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
+# # ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
