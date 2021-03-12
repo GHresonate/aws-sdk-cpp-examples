@@ -70,18 +70,14 @@ RUN make
 FROM ubuntu:20.04 as app
 
 ENV DEBIAN_FRONTEND=noninteractive
-SHELL [ "bash", "-c" ]
 
 # Fix tzdata hang
 ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update && \
-    apt-get install -y \
-    libcurl4-openssl-dev libssl-dev libpulse-dev \
-    uuid-dev zlib1g-dev
+    apt-get install -y libcurl4
 
 COPY --from=build-app /usr/local/bin/. /usr/local/bin/
 COPY --from=build-app /usr/local/lib/. /usr/local/lib/
-COPY --from=build-app /usr/local/include/. /usr/local/include/
 # ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
