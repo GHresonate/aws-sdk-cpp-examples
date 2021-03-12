@@ -12,9 +12,15 @@ An example of how to a build C++ application that uses AWS's SDK.
 ### Build
 
 ```bash
+$ DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest" # ubuntu
+# For Alpine:
+# DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest-alpine"
+
 $ git clone https://github.com/unfor19/docker-aws-sdk-cpp.git
 $ cd docker-aws-sdk-cpp
-$ docker build -t unfor19/aws-sdk-cpp .
+$ docker build -t "$DOCKER_IMAGE" .
+# For Alpine:
+# docker build -t "$DOCKER_IMAGE" -f Dockerfile.alpine .
 ```
 
 ### Run
@@ -23,15 +29,18 @@ The executeable `s3-demo` is copied `/usr/local/bin` during the build time. The 
 
 ```bash
 # Using environment variables
+$ DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest" # ubuntu
+# For Alpine:
+# DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest-alpine"
+
 $ docker run --rm -it \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
-    -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:latest s3-demo eu-west-1
+    -e AWS_SESSION_TOKEN "$DOCKER_IMAGE" s3-demo eu-west-1
 # Output: List of buckets ...
 
-
 # Using configuration file in readonly mode (haven't tested it)
-$ docker run --rm -it -v $HOME/.aws/:/root/.aws/:ro unfor19/aws-sdk-cpp:latest s3-demo eu-west-1
+$ docker run --rm -it -v $HOME/.aws/:/root/.aws/:ro "$DOCKER_IMAGE" s3-demo eu-west-1
 # Output: List of buckets ...
 ```
 
@@ -40,13 +49,19 @@ $ docker run --rm -it -v $HOME/.aws/:/root/.aws/:ro unfor19/aws-sdk-cpp:latest s
 ### Build
 
 ```bash
+$ DOCKER_IMAGE="unfor19/aws-sdk-cpp:dev-latest" # ubuntu
+# For Alpine:
+# DOCKER_IMAGE="unfor19/aws-sdk-cpp:dev-latest-alpine"
+
 $ git clone https://github.com/unfor19/docker-aws-sdk-cpp.git
 $ cd docker-aws-sdk-cpp
 
-# (Optoinal) Build the application in Debug mode
+# (Optional) Build the application in Debug mode
 export APP_BUILD_TYPE="Debug" # or Release
 
-$ docker build -t unfor19/aws-sdk-cpp --target build-app --build-arg APP_BUILD_TYPE="$APP_BUILD_TYPE" .
+$ docker build -t "$DOCKER_IMAGE" --target build-app --build-arg APP_BUILD_TYPE="$APP_BUILD_TYPE" .
+# For Alpine: 
+# docker build -t "$DOCKER_IMAGE" --target build-app --build-arg APP_BUILD_TYPE="$APP_BUILD_TYPE" . -f Dockerfile.alpine
 ```
 
 ### Run
@@ -54,17 +69,20 @@ $ docker build -t unfor19/aws-sdk-cpp --target build-app --build-arg APP_BUILD_T
 Mount this project to the container and then build the application.
 
 ```bash
+$ DOCKER_IMAGE="unfor19/aws-sdk-cpp:dev-latest" # ubuntu
+# For Alpine:
+# DOCKER_IMAGE="unfor19/aws-sdk-cpp:dev-latest-alpine"
+
 # Change something in src/s3-demo.cpp with local IDE and build the application while in the container
 
 # Using environment variables
 $ docker run --rm -it -v "$PWD"/:/code/ \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
-    -e AWS_SESSION_TOKEN unfor19/aws-sdk-cpp:src bash
+    -e AWS_SESSION_TOKEN "$DOCKER_IMAGE" bash
 
 root@852c75b69bd4:/code/build# s3-demo eu-west-1
 # Output: List of buckets ...
-
 
 # Change something in src/s3-demo.cpp with local IDE and build the application while in the container
 root@852c75b69bd4:/code/build# make
@@ -75,13 +93,12 @@ root@852c75b69bd4:/code/build# s3-demo eu-west-1
 ### Build Only aws-sdk-cpp
 
 ```bash
-docker build --target build-aws-sdk-cpp -t unfor19/aws-sdk-cpp:src .
+DOCKER_IMAGE="unfor19/aws-sdk-cpp:src-latest" # ubuntu
+# For Alpine:
+# DOCKER_IMAGE="unfor19/aws-sdk-cpp:src-latest-alpine"
+
+docker build --target build-aws-sdk-cpp -t "$DOCKER_IMAGE" .
 ```
-
-## TODO
-
-- Dockerfile - Change final image from `ubuntu` to `alpine`
-- Add Debug target
 
 ## Authors
 

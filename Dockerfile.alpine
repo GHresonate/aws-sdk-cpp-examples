@@ -1,0 +1,94 @@
+### --------------------------------------------------------------------
+### Docker Build Arguments
+### Available only during Docker build - `docker build --build-arg ...`
+### --------------------------------------------------------------------
+ARG AWS_SDK_CPP_VERSION="1.8.160"
+ARG GITHUB_OWNER="aws"
+ARG GITHUB_REPOSITORY="aws-sdk-cpp"
+ARG AWS_SDK_BUILD_ONLY="s3"
+ARG AWS_SDK_CPP_BUILD_TYPE="Release"
+ARG APP_BUILD_TYPE="Release"
+ARG APP_USER_NAME="appuser"
+ARG APP_USER_ID="1001"
+ARG APP_GROUP_NAME="appgroup"
+ARG APP_GROUP_ID="1001"
+### --------------------------------------------------------------------
+
+
+### --------------------------------------------------------------------
+### Base image
+### --------------------------------------------------------------------
+FROM alpine:3.12 as base
+
+# # Fix tzdata hang
+# ENV TZ=Etc/UTC
+# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN \
+    apk add --no-cache \
+    curl wget git zip unzip \
+    cmake g++ musl-dev \
+    curl-dev libressl openssl-dev pulseaudio-dev \
+    zlib-dev
+RUN apk add --no-cache \
+    make go=1.13.15-r0
+ENV PATH="$PATH:/usr/lib/go/bin"
+
+
+### --------------------------------------------------------------------
+### Build aws-sdk-cpp
+### --------------------------------------------------------------------
+FROM base as build-aws-sdk-cpp
+ARG AWS_SDK_CPP_VERSION
+ARG GITHUB_OWNER="aws"
+ARG GITHUB_REPOSITORY="aws-sdk-cpp"
+ARG AWS_SDK_CPP_BUILD_TYPE
+ARG AWS_SDK_BUILD_ONLY
+ENV AWS_SDK_CPP_VERSION="${AWS_SDK_CPP_VERSION}" \
+    AWS_SDK_CPP_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+    AWS_SDK_BUILD_ONLY="${AWS_SDK_BUILD_ONLY}" \
+    GITHUB_OWNER="${GITHUB_OWNER}" \
+    GITHUB_REPOSITORY="$GITHUB_REPOSITORY"
+ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
+
+WORKDIR /sdk_build/
+ENV GITHUB_URL="https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip"
+RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL"
+RUN unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH"
+RUN cmake "aws-sdk-cpp-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+    -DENABLE_TESTING=OFF
+RUN make
+RUN make install
+
+
+### --------------------------------------------------------------------
+### Build the application
+### --------------------------------------------------------------------
+FROM build-aws-sdk-cpp as build-app
+WORKDIR /code/
+COPY . .
+ARG APP_BUILD_TYPE
+ENV APP_BUILD_TYPE="${APP_BUILD_TYPE}"
+RUN rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE="${APP_BUILD_TYPE}"
+WORKDIR /code/build/
+RUN make && rm -rf /code/
+
+
+### --------------------------------------------------------------------
+### Final application image
+### --------------------------------------------------------------------
+FROM alpine:3.12 as app
+RUN apk add --no-cache libcurl libstdc++
+
+ARG APP_USER_NAME
+ARG APP_USER_ID
+ARG APP_GROUP_ID
+ARG APP_GROUP_NAME
+
+RUN \
+    addgroup -g "${APP_GROUP_ID}" "${APP_GROUP_NAME}" && \
+    adduser -H -D -u "$APP_USER_ID" -G "$APP_GROUP_NAME" "$APP_USER_NAME"
+USER "$APP_USER_NAME"
+COPY --from=build-app /usr/local/lib*/*.so* /usr/local/lib/
+COPY --from=build-app /usr/local/bin/. /usr/local/bin/
+# # ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
