@@ -61,7 +61,7 @@ jobs:
   # dockerhub-latest:
   #   needs: docker_build_ubuntu
   #   name: push latest ubuntu
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-20.04
   #   env:
   #     DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest
   #   steps:
@@ -94,7 +94,7 @@ jobs:
   dockerhub-latest-alpine:
     needs: docker_build_alpine
     name: push latest alpine
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest-alpine
     steps:
