@@ -58,7 +58,8 @@ WORKDIR /sdk_build/
 ENV GITHUB_URL="https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip"
 RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" 
 RUN unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH"
-RUN cmake "aws-sdk-cpp-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}"
+RUN cmake "aws-sdk-cpp-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+    -DENABLE_TESTING=OFF
 RUN make
 RUN make install
 
