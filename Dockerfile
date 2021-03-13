@@ -29,7 +29,7 @@ RUN \
     apt-get update && \
     apt-get install -y \
     curl wget git zip unzip \
-    make cmake g++ gcc \
+    make cmake g++ \
     libcurl4-openssl-dev libssl-dev libpulse-dev \
     uuid-dev zlib1g-dev
 
@@ -39,8 +39,8 @@ RUN \
 ### --------------------------------------------------------------------
 FROM base as build-aws-sdk-cpp
 ARG AWS_SDK_CPP_VERSION
-ARG GITHUB_OWNER="aws"
-ARG GITHUB_REPOSITORY="aws-sdk-cpp"
+ARG GITHUB_OWNER
+ARG GITHUB_REPOSITORY
 ARG AWS_SDK_CPP_BUILD_TYPE
 ARG AWS_SDK_BUILD_ONLY
 ENV AWS_SDK_CPP_VERSION="${AWS_SDK_CPP_VERSION}" \
@@ -52,13 +52,13 @@ ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 
 RUN ln -sf /bin/bash /bin/sh
 WORKDIR /sdk_build/
-ENV GITHUB_URL="https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip"
-RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" 
-RUN unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH"
-RUN cmake "aws-sdk-cpp-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
-    -DENABLE_TESTING=OFF
-RUN make
-RUN make install
+ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/archive/${AWS_SDK_CPP_VERSION}.zip"
+RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" && \
+    unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH" && \
+    cmake "${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+    -DENABLE_TESTING=OFF && \
+    make && \
+    make install
 
 
 ### --------------------------------------------------------------------
@@ -72,7 +72,7 @@ ARG APP_BUILD_TYPE
 ENV APP_BUILD_TYPE="${APP_BUILD_TYPE}"
 RUN rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE="${APP_BUILD_TYPE}"
 WORKDIR /code/build/
-RUN make && [[ $APP_MOUNT_VOLUME = "true" ]] && rm -rf /code/
+RUN make && if [[ "$APP_MOUNT_VOLUME" = "true" ]] ; then rm -rf /code ; fi
 
 
 ### --------------------------------------------------------------------

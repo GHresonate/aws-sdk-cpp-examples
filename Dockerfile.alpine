@@ -46,10 +46,10 @@ ENV AWS_SDK_CPP_VERSION="${AWS_SDK_CPP_VERSION}" \
 ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 
 WORKDIR /sdk_build/
-ENV GITHUB_URL="https://github.com/aws/aws-sdk-cpp/archive/${AWS_SDK_CPP_VERSION}.zip"
+ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/archive/${AWS_SDK_CPP_VERSION}.zip"
 RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL"
 RUN unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH"
-RUN cmake "aws-sdk-cpp-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+RUN cmake "${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
     -DENABLE_TESTING=OFF
 RUN make
 RUN make install
@@ -66,7 +66,7 @@ ARG APP_BUILD_TYPE
 ENV APP_BUILD_TYPE="${APP_BUILD_TYPE}"
 RUN rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE="${APP_BUILD_TYPE}"
 WORKDIR /code/build/
-RUN make && [[ $APP_MOUNT_VOLUME = "true" ]] && rm -rf /code/
+RUN make && if [[ "$APP_MOUNT_VOLUME" = "true" ]] ; then rm -rf /code ; fi
 
 
 ### --------------------------------------------------------------------
