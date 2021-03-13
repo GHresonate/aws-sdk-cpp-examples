@@ -1,7 +1,4 @@
 // Based on: https://docs.aws.amazon.com/cloud9/latest/user-guide/sample-cplusplus.html
-#include <iostream>
-#include <string>
-
 #include <aws/core/Aws.h>
 #include <aws/s3/S3Client.h>
 #include <aws/s3/model/Bucket.h>
