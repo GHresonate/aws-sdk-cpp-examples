@@ -16,8 +16,8 @@ $ DOCKER_IMAGE="unfor19/aws-sdk-cpp-examples:latest" # ubuntu
 # For Alpine:
 # DOCKER_IMAGE="unfor19/aws-sdk-cpp:latest-alpine"
 
-$ git clone https://github.com/unfor19/docker-aws-sdk-cpp.git
-$ cd docker-aws-sdk-cpp
+$ git clone https://github.com/unfor19/aws-sdk-cpp-examples.git
+$ cd aws-sdk-cpp-examples
 $ docker build -t "$DOCKER_IMAGE" .
 # For Alpine:
 # docker build -t "$DOCKER_IMAGE" -f Dockerfile.alpine .
@@ -54,7 +54,7 @@ $ DOCKER_IMAGE="unfor19/aws-sdk-cpp-examples:latest-dev" # ubuntu
 # DOCKER_IMAGE="unfor19/aws-sdk-cpp-examples:latest-alpine-dev"
 
 $ git clone https://github.com/unfor19/aws-sdk-cpp-examples.git
-$ cd docker-aws-sdk-cpp
+$ cd aws-sdk-cpp-examples
 
 $ docker build -t "$DOCKER_IMAGE" --target build-app --build-arg APP_MOUNT_VOLUME="true" .
 # For Alpine: 
@@ -105,4 +105,4 @@ Created and maintained by [Meir Gabay](https://github.com/unfor19)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/unfor19/docker-aws-sdk-cpp/blob/master/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/unfor19/aws-sdk-cpp-examples/blob/master/LICENSE) file for details
