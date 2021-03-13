@@ -9,6 +9,7 @@ on:
 
 env:
   TARGET_BASE: build-app
+  TARGET_SDK: build-aws-sdk-cpp
   TARGET_APP: app
   DOCKER_BUILDKIT: 1
 
@@ -42,8 +43,14 @@ jobs:
             -f "${{ matrix.DOCKERFILE_PATH }}" \
             --target "${TARGET_BASE}" \
             --build-arg BUILDKIT_INLINE_CACHE=1
-          docker build . -t "cached-${TARGET_APP}" \
+          docker build . -t "cached-${TARGET_SDK}" \
             --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" \
+            --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}" \
+            -f "${{ matrix.DOCKERFILE_PATH }}" \
+            --target "${TARGET_SDK}" \
+            --build-arg BUILDKIT_INLINE_CACHE=1            
+          docker build . -t "cached-${TARGET_APP}" \
+            --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}" \
             --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}" \
             -f "${{ matrix.DOCKERFILE_PATH }}" \
             --target "${TARGET_APP}" \
@@ -51,10 +58,12 @@ jobs:
       - name: docker tag cached
         run: |
           docker tag "cached-${TARGET_BASE}" "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
+          docker tag "cached-${TARGET_SDK}" "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}"
           docker tag "cached-${TARGET_APP}"  "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
       - name: docker push cached to ghcr
         run: |
           docker push "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
+          docker push "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}"
           docker push "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
 
   dockerhub-push:
@@ -76,15 +85,22 @@ jobs:
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
+          docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}"
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
       - name: docker build image
         run: |
-          docker build . -t "${{ matrix.DOCKERHUB_TAG }}" \
+          docker build . -t "${{ matrix.DOCKERHUB_TAG }}-sdk" \
             --cache-from "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" \
+            --cache-from "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}" \
+            -f "${{ matrix.DOCKERFILE_PATH }}" \
+            --target "${TARGET_SDK}"
+          docker build . -t "${{ matrix.DOCKERHUB_TAG }}" \
+            --cache-from "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}" \
             --cache-from "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}" \
             -f "${{ matrix.DOCKERFILE_PATH }}" \
             --target "${TARGET_APP}"
       - name: docker push to dockerhub
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push "${{ matrix.DOCKERHUB_TAG }}-sdk"
           docker push "${{ matrix.DOCKERHUB_TAG }}"
