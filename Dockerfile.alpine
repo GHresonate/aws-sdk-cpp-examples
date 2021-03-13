@@ -47,12 +47,12 @@ ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 
 WORKDIR /sdk_build/
 ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/archive/${AWS_SDK_CPP_VERSION}.zip"
-RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL"
-RUN unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH"
-RUN cmake "${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
-    -DENABLE_TESTING=OFF
-RUN make
-RUN make install
+RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" && \
+    unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH" && \
+    cmake "${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+    -DENABLE_TESTING=OFF && \
+    make && \
+    make install
 
 
 ### --------------------------------------------------------------------
