@@ -7,113 +7,66 @@ on:
       - "README.md"
 
 jobs:
-  docker_build_ubuntu:
+  docker-build:
+    name: docker build
     runs-on: ubuntu-20.04
-    name: docker build ubuntu
+    strategy:
+      matrix:
+        include:
+          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest
+            DOCKERFILE_PATH: Dockerfile
+          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
+            DOCKERFILE_PATH: Dockerfile.alpine
+    env:
+      TAGET_BASE: build-app
+      TARGET_APP: app
     steps:
       - uses: actions/checkout@v2
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
-      - name: Set env vars
-        run: |
-          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
-          [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest >> $GITHUB_ENV
       - name: docker login ghcr
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
-          docker pull ubuntu:20.04
-          docker pull "$DOCKER_TAG" || true
+          docker pull "${GHCR_CACHED_TAG}-${TARGET_BASE}" || true
+          docker pull "${GHCR_CACHED_TAG}-${TARGET_APP}" || true
       - name: docker build cached
-        run: docker build . -t cached --cache-from="$DOCKER_TAG" -f Dockerfile --target build-app
+        run: |
+          docker build . -t "cached-${TARGET_BASE}" --cache-from="${GHCR_CACHED_TAG}-${TARGET_BASE}" -f "${DOCKERFILE_PATH}" --target "${TAGET_BASE}"
+          docker build . -t "cached-${TARGET_APP}"  --cache-from="${GHCR_CACHED_TAG}-${TARGET_APP}"  -f "${DOCKERFILE_PATH}" --target "${TARGET_APP}"
       - name: docker tag cached
-        run: docker tag cached "$DOCKER_TAG"
+        run: |
+          docker tag "cached-${TARGET_BASE}" "${GHCR_CACHED_TAG}-${TARGET_BASE}"
+          docker tag "cached-${TARGET_APP}"  "${GHCR_CACHED_TAG}-${TARGET_APP}"
       - name: docker push cached to ghcr
-        run: docker push "$DOCKER_TAG" || true
+        run: |
+          docker push "${GHCR_CACHED_TAG}-${TARGET_BASE}"
+          docker push "${GHCR_CACHED_TAG}-${TARGET_APP}"
 
-  docker_build_alpine:
+  dockerhub-push:
+    needs: docker-build
+    name: push latest
     runs-on: ubuntu-20.04
-    name: docker build alpine
-    steps:
-      - uses: actions/checkout@v2
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
-      - name: Set env vars
-        run: |
-          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
-          [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
-      - name: docker login ghcr
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      - name: docker pull cached
-        run: |
-          docker pull alpine:3.12
-          docker pull "$DOCKER_TAG" || true
-      - name: docker build cached
-        run: docker build . -t cached --cache-from="$DOCKER_TAG" -f Dockerfile.alpine --target build-app
-      - name: docker tag cached
-        run: docker tag cached "$DOCKER_TAG"
-      - name: docker push cached to ghcr
-        run: docker push "$DOCKER_TAG" || true
-
-  dockerhub-latest-ubuntu:
-    needs: docker_build_ubuntu
-    name: push latest ubuntu
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest
+            DOCKERFILE_PATH: Dockerfile
+          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
+            DOCKERFILE_PATH: Dockerfile.alpine
     env:
       DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest
     steps:
       - uses: actions/checkout@v2
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
-      - name: Set env vars
-        run: |
-          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
-          [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest >> $GITHUB_ENV
       - name: docker login ghcr
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
-          docker pull ubuntu:20.04
-          docker pull "$DOCKER_TAG"
+          docker pull "${GHCR_CACHED_TAG}-${TARGET_BASE}"
+          docker pull "${GHCR_CACHED_TAG}-${TARGET_APP}"
       - name: docker build image
         run: |
-          docker build . --cache-from="$DOCKER_TAG" --tag "${DOCKERHUB_TAG}" -f Dockerfile --target app
-      - name: docker push to dockerhub
-        run: |
-          echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push "${DOCKERHUB_TAG}" && echo "Pushed $DOCKERHUB_TAG"
-
-  dockerhub-latest-alpine:
-    needs: docker_build_alpine
-    name: push latest alpine
-    runs-on: ubuntu-20.04
-    env:
-      DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest-alpine
-    steps:
-      - uses: actions/checkout@v2
-      - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v3.x
-      - name: Set env vars
-        run: |
-          export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
-          [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
-      - name: docker login ghcr
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      - name: docker pull cached
-        run: |
-          docker pull alpine:3.12
-          docker pull "$DOCKER_TAG"
-      - name: docker build image
-        run: |
-          docker build . --cache-from="$DOCKER_TAG" --tag "${DOCKERHUB_TAG}" -f Dockerfile.alpine --target app
+          docker build . -t "${DOCKERHUB_TAG}" --cache-from="${GHCR_CACHED_TAG}-${TARGET_BASE}" -f "${DOCKERFILE_PATH}" --target "${TARGET_APP}"
       - name: docker push to dockerhub
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
