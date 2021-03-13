@@ -9,9 +9,9 @@ ARG AWS_SDK_BUILD_ONLY="s3"
 ARG AWS_SDK_CPP_BUILD_TYPE="Release"
 ARG APP_BUILD_TYPE="Release"
 ARG APP_USER_NAME="appuser"
-ARG APP_USER_ID="1001"
+ARG APP_USER_ID="1000"
 ARG APP_GROUP_NAME="appgroup"
-ARG APP_GROUP_ID="1001"
+ARG APP_GROUP_ID="1000"
 ARG APP_MOUNT_VOLUME="false"
 ### --------------------------------------------------------------------
 
