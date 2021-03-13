@@ -12,6 +12,7 @@ ARG APP_USER_NAME="appuser"
 ARG APP_USER_ID="1001"
 ARG APP_GROUP_NAME="appgroup"
 ARG APP_GROUP_ID="1001"
+ARG APP_MOUNT_VOLUME="false"
 ### --------------------------------------------------------------------
 
 
@@ -58,13 +59,14 @@ RUN make install
 ### Build the application
 ### --------------------------------------------------------------------
 FROM build-aws-sdk-cpp as build-app
+ARG APP_MOUNT_VOLUME
 WORKDIR /code/
 COPY . .
 ARG APP_BUILD_TYPE
 ENV APP_BUILD_TYPE="${APP_BUILD_TYPE}"
 RUN rm -rf build && cmake -S . -B build -DCMAKE_BUILD_TYPE="${APP_BUILD_TYPE}"
 WORKDIR /code/build/
-RUN make && rm -rf /code/
+RUN make && [[ $APP_MOUNT_VOLUME = "true" ]] && rm -rf /code/
 
 
 ### --------------------------------------------------------------------
