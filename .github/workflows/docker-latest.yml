@@ -35,6 +35,7 @@ jobs:
       - name: docker pull cached
         run: |
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" || true
+          docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_SDK}" || true
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}" || true
       - name: docker build cached
         run: |
