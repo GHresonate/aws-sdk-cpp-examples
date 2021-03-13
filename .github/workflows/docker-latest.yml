@@ -28,20 +28,20 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
-          docker pull "${GHCR_CACHED_TAG}-${TARGET_BASE}" || true
-          docker pull "${GHCR_CACHED_TAG}-${TARGET_APP}" || true
+          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}" || true
+          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}" || true
       - name: docker build cached
         run: |
-          docker build . -t "cached-${TARGET_BASE}" --cache-from="${GHCR_CACHED_TAG}-${TARGET_BASE}" -f "${DOCKERFILE_PATH}" --target "${TAGET_BASE}"
-          docker build . -t "cached-${TARGET_APP}"  --cache-from="${GHCR_CACHED_TAG}-${TARGET_APP}"  -f "${DOCKERFILE_PATH}" --target "${TARGET_APP}"
+          docker build . -t "cached-${TARGET_BASE}" --cache-from="${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TAGET_BASE}"
+          docker build . -t "cached-${TARGET_APP}"  --cache-from="${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"  -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TARGET_APP}"
       - name: docker tag cached
         run: |
-          docker tag "cached-${TARGET_BASE}" "${GHCR_CACHED_TAG}-${TARGET_BASE}"
-          docker tag "cached-${TARGET_APP}"  "${GHCR_CACHED_TAG}-${TARGET_APP}"
+          docker tag "cached-${TARGET_BASE}" "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}"
+          docker tag "cached-${TARGET_APP}"  "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"
       - name: docker push cached to ghcr
         run: |
-          docker push "${GHCR_CACHED_TAG}-${TARGET_BASE}"
-          docker push "${GHCR_CACHED_TAG}-${TARGET_APP}"
+          docker push "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}"
+          docker push "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"
 
   dockerhub-push:
     needs: docker-build
@@ -58,17 +58,15 @@ jobs:
             DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest-alpine
     steps:
       - uses: actions/checkout@v2
-      - name: docker login ghcr
+      - name: docker pull cached from ghcr
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-      - name: docker pull cached
-        run: |
-          docker pull "${GHCR_CACHED_TAG}-${TARGET_BASE}"
-          docker pull "${GHCR_CACHED_TAG}-${TARGET_APP}"
+          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}"
+          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"
       - name: docker build image
         run: |
-          docker build . -t "${DOCKERHUB_TAG}" --cache-from="${GHCR_CACHED_TAG}-${TARGET_BASE}" -f "${DOCKERFILE_PATH}" --target "${TARGET_APP}"
+          docker build . -t "${{ matrix.DOCKERHUB_TAG }}" --cache-from="${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TARGET_APP}"
       - name: docker push to dockerhub
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker push "${DOCKERHUB_TAG}" && echo "Pushed $DOCKERHUB_TAG"
+          docker push "${{ matrix.DOCKERHUB_TAG }}"
