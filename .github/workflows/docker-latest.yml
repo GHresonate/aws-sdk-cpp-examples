@@ -6,6 +6,10 @@ on:
     paths-ignore:
       - "README.md"
 
+env:
+  TARGET_BASE: build-app
+  TARGET_APP: app
+
 jobs:
   docker-build:
     name: docker build
@@ -17,9 +21,6 @@ jobs:
             DOCKERFILE_PATH: Dockerfile
           - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
             DOCKERFILE_PATH: Dockerfile.alpine
-    env:
-      TARGET_BASE: build-app
-      TARGET_APP: app
     steps:
       - uses: actions/checkout@v2
       - name: docker login ghcr
@@ -55,9 +56,6 @@ jobs:
           - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
             DOCKERFILE_PATH: Dockerfile.alpine
             DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest-alpine
-    env:
-      TARGET_BASE: build-app
-      TARGET_APP: app
     steps:
       - uses: actions/checkout@v2
       - name: docker login ghcr
