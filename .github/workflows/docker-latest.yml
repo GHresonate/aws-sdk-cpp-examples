@@ -18,7 +18,7 @@ jobs:
           - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
             DOCKERFILE_PATH: Dockerfile.alpine
     env:
-      TAGET_BASE: build-app
+      TARGET_BASE: build-app
       TARGET_APP: app
     steps:
       - uses: actions/checkout@v2
@@ -51,10 +51,13 @@ jobs:
         include:
           - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest
             DOCKERFILE_PATH: Dockerfile
+            DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest
           - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
             DOCKERFILE_PATH: Dockerfile.alpine
+            DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest-alpine
     env:
-      DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest
+      TARGET_BASE: build-app
+      TARGET_APP: app
     steps:
       - uses: actions/checkout@v2
       - name: docker login ghcr
