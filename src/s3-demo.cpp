@@ -32,7 +32,7 @@ bool ListBuckets(const Aws::S3::S3Client &s3Client)
         }
         else
         {
-            std::cout << "Unknown error: Might be related to authentication";
+            std::cout << "Unknown error: Might be related to authentication" << std::endl;
         }
     }
     return false;
