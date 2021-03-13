@@ -1,5 +1,7 @@
 // Based on: https://docs.aws.amazon.com/cloud9/latest/user-guide/sample-cplusplus.html
 #include <iostream>
+#include <string>
+
 #include <aws/core/Aws.h>
 #include <aws/s3/S3Client.h>
 #include <aws/s3/model/Bucket.h>
@@ -7,8 +9,8 @@
 bool ListBuckets(const Aws::S3::S3Client &s3Client)
 {
     Aws::S3::Model::ListBucketsOutcome outcome = s3Client.ListBuckets();
-
-    if (outcome.IsSuccess())
+    Aws::String owner = outcome.GetResult().GetOwner().GetDisplayName();
+    if (outcome.IsSuccess() && owner != "")
     {
         Aws::Vector<Aws::S3::Model::Bucket> bucket_list =
             outcome.GetResult().GetBuckets();
@@ -22,10 +24,17 @@ bool ListBuckets(const Aws::S3::S3Client &s3Client)
     }
     else
     {
-        std::cout << "ListBuckets error: "
-                  << outcome.GetError().GetMessage() << std::endl;
+        Aws::String s3_error = outcome.GetError().GetMessage();
+        if (s3_error != "")
+        {
+            std::cout << "ListBuckets error: "
+                      << outcome.GetError().GetMessage() << std::endl;
+        }
+        else
+        {
+            std::cout << "Unknown error: Might be related to authentication";
+        }
     }
-
     return false;
 }
 
@@ -40,6 +49,7 @@ int main(int argc, char *argv[])
     }
 
     Aws::SDKOptions options;
+    // options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Info;
     Aws::InitAPI(options);
     {
         Aws::String region = argv[1];
