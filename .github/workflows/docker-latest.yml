@@ -11,6 +11,9 @@ env:
   TARGET_BASE: build-app
   TARGET_APP: app
 
+# Hardcoded values:
+# unfor19/aws-sdk-cpp-examples
+
 jobs:
   docker-build:
     name: docker build
@@ -18,9 +21,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest"
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest"
             DOCKERFILE_PATH: Dockerfile
-          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest-alpine"
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine"
             DOCKERFILE_PATH: Dockerfile.alpine
     steps:
       - uses: actions/checkout@v2
@@ -51,12 +54,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest"
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest"
             DOCKERFILE_PATH: Dockerfile
-            DOCKERHUB_TAG: "${GITHUB_REPOSITORY}:latest"
-          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest-alpine"
+            DOCKERHUB_TAG: "unfor19/aws-sdk-cpp-examples:latest"
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine"
             DOCKERFILE_PATH: Dockerfile.alpine
-            DOCKERHUB_TAG: "${GITHUB_REPOSITORY}:latest-alpine"
+            DOCKERHUB_TAG: "unfor19/aws-sdk-cpp-examples:latest-alpine"
     steps:
       - uses: actions/checkout@v2
       - name: docker pull cached from ghcr
