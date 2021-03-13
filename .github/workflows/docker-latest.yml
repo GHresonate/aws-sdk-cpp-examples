@@ -52,7 +52,7 @@ jobs:
           docker pull alpine:3.12
           docker pull "$DOCKER_TAG" || true
       - name: docker build cached
-        run: docker build . -t cached --cache-from="$DOCKER_TAG" -f Dockerfile.alpine
+        run: docker build . -t cached --cache-from="$DOCKER_TAG" -f Dockerfile.alpine --target build-app
       - name: docker tag cached
         run: docker tag cached "$DOCKER_TAG"
       - name: docker push cached to ghcr
