@@ -18,7 +18,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}-${BRANCH_NAME//\//-}:latest-test >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -43,7 +43,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}-${BRANCH_NAME//\//-}:latest-test-alpine >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test-alpine >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -71,7 +71,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}-${BRANCH_NAME//\//-}:latest-test >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -100,7 +100,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}-${BRANCH_NAME//\//-}:latest-test-alpine >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test-alpine >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
