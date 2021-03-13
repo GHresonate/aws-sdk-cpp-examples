@@ -23,8 +23,10 @@ jobs:
         include:
           - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest"
             DOCKERFILE_PATH: Dockerfile
+            BASE_IMAGE: ubuntu:20.04
           - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine"
             DOCKERFILE_PATH: Dockerfile.alpine
+            BASE_IMAGE: alpine:3.12
     steps:
       - uses: actions/checkout@v2
       - name: docker login ghcr
@@ -32,8 +34,9 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
+          docker pull "${{ matrix.BASE_IMAGE }}"
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" || true
-          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}" || true
+          docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}" || true
       - name: docker build cached
         run: |
           docker build . -t "cached-${TARGET_BASE}" --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TAGET_BASE}"
@@ -57,14 +60,17 @@ jobs:
           - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest"
             DOCKERFILE_PATH: Dockerfile
             DOCKERHUB_TAG: "unfor19/aws-sdk-cpp-examples:latest"
+            BASE_IMAGE: ubuntu:20.04
           - GHCR_CACHED_TAG_PREFIX: "ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine"
             DOCKERFILE_PATH: Dockerfile.alpine
             DOCKERHUB_TAG: "unfor19/aws-sdk-cpp-examples:latest-alpine"
+            BASE_IMAGE: alpine:3.12
     steps:
       - uses: actions/checkout@v2
       - name: docker pull cached from ghcr
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+          docker pull "${{ matrix.BASE_IMAGE }}"
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
           docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
       - name: docker build image
