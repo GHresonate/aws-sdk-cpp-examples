@@ -1,5 +1,7 @@
 # aws-sdk-cpp-examples
 
+[![Push latest version to DockerHub](https://github.com/unfor19/aws-sdk-cpp-examples/actions/workflows/docker-latest.yml/badge.svg)](https://github.com/unfor19/aws-sdk-cpp-examples/actions/workflows/docker-latest.yml)
+
 An example of how to a build C++ application that uses AWS's SDK.
 
 ## Requirements
