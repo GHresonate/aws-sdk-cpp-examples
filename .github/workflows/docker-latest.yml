@@ -18,7 +18,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}-latest >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -43,7 +43,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test-alpine >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -71,7 +71,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}-latest >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -79,9 +79,13 @@ jobs:
         run: |
           docker pull "$DOCKER_TAG"
       - name: Build Docker Image
+        env:
+          DOCKER_TAG: unfor19/aws-sdk-cpp:latest
         run: |
           docker build . --tag "${DOCKER_TAG}" -f Dockerfile --target app
       - name: Push to DockerHub
+        env:
+          DOCKER_TAG: unfor19/aws-sdk-cpp:latest
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push "${DOCKER_TAG}" && echo "Pushed $DOCKER_TAG"
@@ -90,8 +94,6 @@ jobs:
     needs: docker_build_alpine
     name: push latest alpine
     runs-on: ubuntu-latest
-    env:
-      DOCKER_TAG: unfor19/aws-sdk-cpp:latest-alpine
     steps:
       - uses: actions/checkout@v2
       - name: Inject slug/short variables
@@ -100,7 +102,7 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}:${BRANCH_NAME//\//-}-latest-test-alpine >> $GITHUB_ENV
+          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
       - name: docker login
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
@@ -108,9 +110,13 @@ jobs:
         run: |
           docker pull "$DOCKER_TAG"
       - name: Build Docker Image
+        env:
+          DOCKER_TAG: unfor19/aws-sdk-cpp:latest-alpine
         run: |
           docker build . --tag "${DOCKER_TAG}" -f Dockerfile.alpine --target app
       - name: Push to DockerHub
+        env:
+          DOCKER_TAG: unfor19/aws-sdk-cpp:latest-alpine
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker push "${DOCKER_TAG}" && echo "Pushed $DOCKER_TAG"
