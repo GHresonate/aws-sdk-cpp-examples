@@ -28,13 +28,9 @@ RUN \
     apt-get update && \
     apt-get install -y \
     curl wget git zip unzip \
-    cmake g++ gcc \
+    make cmake g++ gcc \
     libcurl4-openssl-dev libssl-dev libpulse-dev \
     uuid-dev zlib1g-dev
-RUN apt-get update && \
-    apt-get install -y \
-    make golang-1.13
-ENV PATH="$PATH:/usr/lib/go-1.13/bin"
 
 
 ### --------------------------------------------------------------------
