@@ -1,3 +1,4 @@
+# Requires Feature Preview Improved container support - https://docs.github.com/en/github/getting-started-with-github/exploring-early-access-releases-with-feature-preview
 name: Push latest version to DockerHub
 
 on:
@@ -17,9 +18,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest"
             DOCKERFILE_PATH: Dockerfile
-          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest-alpine"
             DOCKERFILE_PATH: Dockerfile.alpine
     steps:
       - uses: actions/checkout@v2
@@ -28,20 +29,20 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
-          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}" || true
+          docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" || true
           docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}" || true
       - name: docker build cached
         run: |
-          docker build . -t "cached-${TARGET_BASE}" --cache-from="${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TAGET_BASE}"
-          docker build . -t "cached-${TARGET_APP}"  --cache-from="${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"  -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TARGET_APP}"
+          docker build . -t "cached-${TARGET_BASE}" --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TAGET_BASE}"
+          docker build . -t "cached-${TARGET_APP}"  --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"  -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TARGET_APP}"
       - name: docker tag cached
         run: |
-          docker tag "cached-${TARGET_BASE}" "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}"
-          docker tag "cached-${TARGET_APP}"  "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"
+          docker tag "cached-${TARGET_BASE}" "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
+          docker tag "cached-${TARGET_APP}"  "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
       - name: docker push cached to ghcr
         run: |
-          docker push "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}"
-          docker push "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"
+          docker push "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
+          docker push "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
 
   dockerhub-push:
     needs: docker-build
@@ -50,22 +51,22 @@ jobs:
     strategy:
       matrix:
         include:
-          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest"
             DOCKERFILE_PATH: Dockerfile
-            DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest
-          - GHCR_CACHED_TAG: ghcr.io/unfor19/aws-sdk-cpp-examples:latest-alpine
+            DOCKERHUB_TAG: "${GITHUB_REPOSITORY}:latest"
+          - GHCR_CACHED_TAG_PREFIX: "ghcr.io/${GITHUB_REPOSITORY}:latest-alpine"
             DOCKERFILE_PATH: Dockerfile.alpine
-            DOCKERHUB_TAG: unfor19/aws-sdk-cpp:latest-alpine
+            DOCKERHUB_TAG: "${GITHUB_REPOSITORY}:latest-alpine"
     steps:
       - uses: actions/checkout@v2
       - name: docker pull cached from ghcr
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}"
-          docker pull "${{ matrix.GHCR_CACHED_TAG }}-${TARGET_APP}"
+          docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}"
+          docker pull "${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_APP}"
       - name: docker build image
         run: |
-          docker build . -t "${{ matrix.DOCKERHUB_TAG }}" --cache-from="${{ matrix.GHCR_CACHED_TAG }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TARGET_APP}"
+          docker build . -t "${{ matrix.DOCKERHUB_TAG }}" --cache-from="${{ matrix.GHCR_CACHED_TAG_PREFIX }}-${TARGET_BASE}" -f "${{ matrix.DOCKERFILE_PATH }}" --target "${TARGET_APP}"
       - name: docker push to dockerhub
         run: |
           echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
