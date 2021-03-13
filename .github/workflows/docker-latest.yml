@@ -18,10 +18,10 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}:latest >> $GITHUB_ENV
+          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest >> $GITHUB_ENV
       - name: docker login
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull
         run: |
           docker pull "$DOCKER_TAG" || true
@@ -43,10 +43,10 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}:latest-alpine >> $GITHUB_ENV
+          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
       - name: docker login
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull
         run: |
           docker pull "$DOCKER_TAG" || true
@@ -71,10 +71,10 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}:latest >> $GITHUB_ENV
+          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest >> $GITHUB_ENV
       - name: docker login
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull
         run: |
           docker pull "$DOCKER_TAG"
@@ -102,10 +102,10 @@ jobs:
         run: |
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
-          echo DOCKER_TAG=docker.pkg.github.com/${GITHUB_REPOSITORY}/${BRANCH_NAME//\//-}:latest-alpine >> $GITHUB_ENV
+          echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
       - name: docker login
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u $GITHUB_ACTOR --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull
         run: |
           docker pull "$DOCKER_TAG"
