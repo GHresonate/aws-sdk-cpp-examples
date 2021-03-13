@@ -44,15 +44,12 @@ jobs:
           export BRANCH_NAME=${{ env.GITHUB_REF_SLUG }}
           [[ $BRANCH_NAME = "master" ]] && export BRANCH_NAME=master-test
           echo DOCKER_TAG=ghcr.io/unfor19/docker-aws-sdk-cpp:${BRANCH_NAME//\//-}-latest-alpine >> $GITHUB_ENV
-      - name: docker pull ubuntu
-        run: |
-          echo '${{ secrets.DOCKER_PASSWORD }}' | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker pull alpine:3.12
       - name: docker login ghcr
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
+          docker pull alpine:3.12
           docker pull "$DOCKER_TAG" || true
       - name: docker build cached
         run: docker build . -t cached --cache-from="$DOCKER_TAG" -f Dockerfile.alpine
@@ -114,7 +111,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
       - name: docker pull cached
         run: |
-          docker pull alpine:3.12        
+          docker pull alpine:3.12
           docker pull "$DOCKER_TAG"
       - name: docker build image
         run: |
