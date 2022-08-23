@@ -6,16 +6,12 @@ cmake_minimum_required(VERSION 3.1)
 # The project name.
 project(s3-demo)
 
-set(AWSSDK_ROOT_DIR, "/usr/local/")
-set(BUILD_SHARED_LIBS ON)
-
-
 # Locate the AWS SDK for C++ package.
-# Requires that you build with:
-#   -Daws-sdk-cpp_DIR=/path/to/sdk_build
-# or export/set:
-#   CMAKE_PREFIX_PATH=/path/to/sdk_build
-find_package(AWSSDK REQUIRED COMPONENTS s3)
+#
+# If the SDK was installed to a specific directory (e.g. by specifying -DCMAKE_INSTALL_PREFIX=/where/it/is
+# when building the SDK), then this project should be built with -DCMAKE_PREFIX_PATH=/where/it/is
+#
+find_package(AWSSDK REQUIRED s3)
 
 # Make binary globally available
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY /usr/local/bin)
