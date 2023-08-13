@@ -92,4 +92,4 @@ RUN groupadd --gid "$APP_GROUP_ID" "$APP_GROUP_NAME" \
 USER "$APP_USER_NAME"
 COPY --from=build-app /usr/local/lib/*.so* /usr/local/lib/
 COPY --from=build-app /usr/local/bin/. /usr/local/bin/
-# # ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
+# ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
