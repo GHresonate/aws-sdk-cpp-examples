@@ -2,7 +2,7 @@
 ### Docker Build Arguments
 ### Available only during Docker build - `docker build --build-arg ...`
 ### --------------------------------------------------------------------
-ARG AWS_SDK_CPP_VERSION="1.8.160"
+ARG AWS_SDK_CPP_VERSION="1.11.111"
 ARG GITHUB_OWNER="aws"
 ARG GITHUB_REPOSITORY="aws-sdk-cpp"
 ARG AWS_SDK_BUILD_ONLY="s3"
@@ -53,9 +53,8 @@ ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 RUN ln -sf /bin/bash /bin/sh
 WORKDIR /sdk_build/
 ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/archive/${AWS_SDK_CPP_VERSION}.zip"
-RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" && \
-    unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH" && \
-    cmake "${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+RUN git clone --recurse-submodules --branch ${AWS_SDK_CPP_VERSION} https://github.com/aws/aws-sdk-cpp && \
+    cmake ./aws-sdk-cpp -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
     -DENABLE_TESTING=OFF && \
     make && \
     make install
