@@ -19,7 +19,7 @@ ARG APP_MOUNT_VOLUME="false"
 ### --------------------------------------------------------------------
 ### Base image
 ### --------------------------------------------------------------------
-FROM ubuntu:20.04 as base
+FROM ubuntu:22.04 as base
 
 # Fix tzdata hang
 ENV TZ=Etc/UTC
@@ -52,8 +52,8 @@ ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 
 RUN ln -sf /bin/bash /bin/sh
 WORKDIR /sdk_build/
-ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/archive/${AWS_SDK_CPP_VERSION}.zip"
-RUN git clone --recurse-submodules --branch ${AWS_SDK_CPP_VERSION} https://github.com/aws/aws-sdk-cpp && \
+ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}"
+RUN git clone --recurse-submodules --branch ${AWS_SDK_CPP_VERSION} ${GITHUB_URL} && \
     cmake ./aws-sdk-cpp -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
     -DENABLE_TESTING=OFF && \
     make && \
@@ -77,7 +77,7 @@ RUN make && if [[ "$APP_MOUNT_VOLUME" = "true" ]] ; then rm -rf /code ; fi
 ### --------------------------------------------------------------------
 ### Final application image
 ### --------------------------------------------------------------------
-FROM ubuntu:20.04 as app
+FROM ubuntu:22.04 as app
 RUN apt-get update && \
     apt-get install -y libcurl4
 
