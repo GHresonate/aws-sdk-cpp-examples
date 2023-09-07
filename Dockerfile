@@ -2,7 +2,7 @@
 ### Docker Build Arguments
 ### Available only during Docker build - `docker build --build-arg ...`
 ### --------------------------------------------------------------------
-ARG AWS_SDK_CPP_VERSION="1.8.160"
+ARG AWS_SDK_CPP_VERSION="1.11.111"
 ARG GITHUB_OWNER="aws"
 ARG GITHUB_REPOSITORY="aws-sdk-cpp"
 ARG AWS_SDK_BUILD_ONLY="s3"
@@ -19,7 +19,7 @@ ARG APP_MOUNT_VOLUME="false"
 ### --------------------------------------------------------------------
 ### Base image
 ### --------------------------------------------------------------------
-FROM ubuntu:20.04 as base
+FROM ubuntu:22.04 as base
 
 # Fix tzdata hang
 ENV TZ=Etc/UTC
@@ -52,10 +52,9 @@ ENV ZIP_FILEPATH="${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}.zip"
 
 RUN ln -sf /bin/bash /bin/sh
 WORKDIR /sdk_build/
-ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/archive/${AWS_SDK_CPP_VERSION}.zip"
-RUN curl -sL -o "$ZIP_FILEPATH" "$GITHUB_URL" && \
-    unzip -qq "$ZIP_FILEPATH" && rm "$ZIP_FILEPATH" && \
-    cmake "${GITHUB_REPOSITORY}-${AWS_SDK_CPP_VERSION}" -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
+ENV GITHUB_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPOSITORY}"
+RUN git clone --recurse-submodules --branch ${AWS_SDK_CPP_VERSION} ${GITHUB_URL} && \
+    cmake ./aws-sdk-cpp -DBUILD_ONLY="${AWS_SDK_BUILD_ONLY}" -DCMAKE_BUILD_TYPE="${AWS_SDK_CPP_BUILD_TYPE}" \
     -DENABLE_TESTING=OFF && \
     make && \
     make install
@@ -78,7 +77,7 @@ RUN make && if [[ "$APP_MOUNT_VOLUME" = "true" ]] ; then rm -rf /code ; fi
 ### --------------------------------------------------------------------
 ### Final application image
 ### --------------------------------------------------------------------
-FROM ubuntu:20.04 as app
+FROM ubuntu:22.04 as app
 RUN apt-get update && \
     apt-get install -y libcurl4
 
@@ -92,4 +91,4 @@ RUN groupadd --gid "$APP_GROUP_ID" "$APP_GROUP_NAME" \
 USER "$APP_USER_NAME"
 COPY --from=build-app /usr/local/lib/*.so* /usr/local/lib/
 COPY --from=build-app /usr/local/bin/. /usr/local/bin/
-# # ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
+# ENTRYPOINT [ "/usr/local/bin/s3-demo" ]
